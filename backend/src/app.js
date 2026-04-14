@@ -23,13 +23,27 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 
 const app = express();
-app.use(cors({ origin: env.clientUrl, credentials: true }));
+const allowedOrigins = String(env.clientUrl)
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(apiLimiter);
 
+app.get('/', (_req, res) => res.json({ success: true, message: 'Vertex Gym ERP Backend Running' }));
 app.get('/api/health', (_req, res) => res.json({ success: true, message: 'Gym ERP API is running' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/members', memberRoutes);
