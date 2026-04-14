@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import { protect } from '../middlewares/authMiddleware.js';
+import * as equipmentController from '../controllers/equipmentController.js';
+const router = Router();
+router.use(protect);
+router.get('/', equipmentController.getEquipment);
+router.post('/', equipmentController.createEquipment);
+router.put('/:id', equipmentController.updateEquipment);
+router.delete('/:id', equipmentController.deleteEquipment);
+router.get('/maintenance/list', equipmentController.getMaintenance);
+router.post('/maintenance', equipmentController.createMaintenance);
+router.get('/damaged/list', equipmentController.getDamagedEquipment);
+export default router;

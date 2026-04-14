@@ -1,0 +1,14 @@
+import { Router } from 'express';
+import { protect } from '../middlewares/authMiddleware.js';
+import * as staffController from '../controllers/staffController.js';
+const router = Router();
+router.use(protect);
+router.get('/', staffController.getStaff);
+router.post('/', staffController.createStaff);
+router.put('/:id', staffController.updateStaff);
+router.delete('/:id', staffController.deleteStaff);
+router.get('/attendance/list', staffController.getStaffAttendance);
+router.post('/attendance', staffController.createStaffAttendance);
+router.get('/shifts/list', staffController.getShifts);
+router.post('/shifts', staffController.createShift);
+export default router;

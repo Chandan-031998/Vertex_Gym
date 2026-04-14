@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { protect } from '../middlewares/authMiddleware.js';
+import * as dietController from '../controllers/dietController.js';
+const router = Router();
+router.use(protect);
+router.get('/plans', dietController.getDietPlans);
+router.post('/plans', dietController.createDietPlan);
+router.put('/plans/:id', dietController.updateDietPlan);
+router.delete('/plans/:id', dietController.deleteDietPlan);
+export default router;

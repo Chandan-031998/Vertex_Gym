@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { protect } from '../middlewares/authMiddleware.js';
+import * as settingsController from '../controllers/settingsController.js';
+const router = Router();
+router.use(protect);
+router.get('/', settingsController.getSettingsBundle);
+router.put('/general', settingsController.updateGeneralSettings);
+router.put('/tax', settingsController.updateTaxSettings);
+router.put('/profile', settingsController.updateProfileSettings);
+router.put('/roles-permissions', settingsController.updateRolesPermissions);
+router.post('/branches', settingsController.createBranch);
+export default router;

@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { protect } from '../middlewares/authMiddleware.js';
+import * as notificationController from '../controllers/notificationController.js';
+const router = Router();
+router.use(protect);
+router.get('/', notificationController.getNotifications);
+router.post('/', notificationController.createNotification);
+router.get('/logs', notificationController.getReminderLogs);
+router.get('/sync', notificationController.syncReminderLogs);
+export default router;

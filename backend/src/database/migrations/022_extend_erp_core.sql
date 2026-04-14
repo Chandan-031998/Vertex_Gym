@@ -1,0 +1,117 @@
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255) NULL,
+  ADD COLUMN IF NOT EXISTS reset_token_expires_at DATETIME NULL;
+
+ALTER TABLE trainers
+  ADD COLUMN IF NOT EXISTS salary DECIMAL(10,2) DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS availability_notes TEXT NULL;
+
+ALTER TABLE members
+  ADD COLUMN IF NOT EXISTS assigned_trainer_id INT NULL,
+  ADD COLUMN IF NOT EXISTS current_weight DECIMAL(5,2) NULL,
+  ADD COLUMN IF NOT EXISTS current_goal VARCHAR(150) NULL,
+  ADD COLUMN IF NOT EXISTS qr_code VARCHAR(120) NULL,
+  ADD COLUMN IF NOT EXISTS qr_token VARCHAR(64) NULL;
+
+ALTER TABLE membership_plans
+  ADD COLUMN IF NOT EXISTS freeze_limit_days INT DEFAULT 0;
+
+ALTER TABLE member_memberships
+  ADD COLUMN IF NOT EXISTS notes TEXT NULL,
+  ADD COLUMN IF NOT EXISTS freeze_start_date DATE NULL,
+  ADD COLUMN IF NOT EXISTS freeze_end_date DATE NULL,
+  ADD COLUMN IF NOT EXISTS paused_days INT DEFAULT 0;
+
+ALTER TABLE payments
+  ADD COLUMN IF NOT EXISTS membership_id INT NULL,
+  ADD COLUMN IF NOT EXISTS tax_amount DECIMAL(10,2) DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS discount_amount DECIMAL(10,2) DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS status ENUM('paid','partial','due') DEFAULT 'paid';
+
+ALTER TABLE classes
+  ADD COLUMN IF NOT EXISTS description TEXT NULL,
+  ADD COLUMN IF NOT EXISTS batch_name VARCHAR(150) NULL,
+  ADD COLUMN IF NOT EXISTS room_name VARCHAR(120) NULL;
+
+ALTER TABLE workout_plans
+  ADD COLUMN IF NOT EXISTS plan_name VARCHAR(150) NULL,
+  ADD COLUMN IF NOT EXISTS status ENUM('active','completed','paused') DEFAULT 'active',
+  ADD COLUMN IF NOT EXISTS progress_percent INT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS target_date DATE NULL,
+  ADD COLUMN IF NOT EXISTS assigned_date DATE NULL,
+  ADD COLUMN IF NOT EXISTS notes TEXT NULL;
+
+ALTER TABLE diet_plans
+  ADD COLUMN IF NOT EXISTS plan_name VARCHAR(150) NULL,
+  ADD COLUMN IF NOT EXISTS calories INT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS protein_grams INT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS carbs_grams INT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS fat_grams INT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS status ENUM('active','completed','paused') DEFAULT 'active',
+  ADD COLUMN IF NOT EXISTS assigned_date DATE NULL,
+  ADD COLUMN IF NOT EXISTS notes TEXT NULL;
+
+ALTER TABLE staff
+  ADD COLUMN IF NOT EXISTS shift_name VARCHAR(100) NULL,
+  ADD COLUMN IF NOT EXISTS branch_id INT NULL;
+
+ALTER TABLE equipment
+  ADD COLUMN IF NOT EXISTS serial_number VARCHAR(100) NULL,
+  ADD COLUMN IF NOT EXISTS purchase_cost DECIMAL(10,2) DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS last_service_date DATE NULL,
+  ADD COLUMN IF NOT EXISTS next_service_date DATE NULL;
+
+ALTER TABLE equipment_maintenance
+  ADD COLUMN IF NOT EXISTS maintenance_type VARCHAR(100) NULL,
+  ADD COLUMN IF NOT EXISTS status VARCHAR(50) NULL,
+  ADD COLUMN IF NOT EXISTS cost DECIMAL(10,2) DEFAULT 0;
+
+ALTER TABLE products
+  ADD COLUMN IF NOT EXISTS low_stock_threshold INT DEFAULT 5,
+  ADD COLUMN IF NOT EXISTS status ENUM('active','inactive') DEFAULT 'active';
+
+ALTER TABLE notifications
+  ADD COLUMN IF NOT EXISTS target_member_id INT NULL,
+  ADD COLUMN IF NOT EXISTS reminder_type VARCHAR(100) NULL,
+  ADD COLUMN IF NOT EXISTS status VARCHAR(50) NULL,
+  ADD COLUMN IF NOT EXISTS created_by INT NULL;
+
+CREATE TABLE IF NOT EXISTS shifts (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  shift_name VARCHAR(120) NOT NULL,
+  start_time TIME,
+  end_time TIME,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS staff_attendance (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  staff_id INT NOT NULL,
+  attendance_date DATE NOT NULL,
+  check_in_time TIME,
+  check_out_time TIME,
+  status ENUM('present','absent','late','leave') DEFAULT 'present',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS inventory_sales (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  invoice_number VARCHAR(100) NOT NULL,
+  customer_name VARCHAR(150),
+  sale_date DATE NOT NULL,
+  payment_method ENUM('cash','card','upi','bank_transfer') DEFAULT 'cash',
+  total_amount DECIMAL(10,2) NOT NULL,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS reminder_logs (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  target_name VARCHAR(150),
+  reminder_type VARCHAR(100),
+  due_date DATE,
+  status VARCHAR(50) DEFAULT 'queued',
+  sent_at DATETIME,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

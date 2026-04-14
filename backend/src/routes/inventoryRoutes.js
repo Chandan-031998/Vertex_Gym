@@ -1,0 +1,18 @@
+import { Router } from 'express';
+import { protect } from '../middlewares/authMiddleware.js';
+import * as inventoryController from '../controllers/inventoryController.js';
+const router = Router();
+router.use(protect);
+router.get('/products', inventoryController.getProducts);
+router.post('/products', inventoryController.createProduct);
+router.put('/products/:id', inventoryController.updateProduct);
+router.delete('/products/:id', inventoryController.deleteProduct);
+router.get('/suppliers', inventoryController.getSuppliers);
+router.post('/suppliers', inventoryController.createSupplier);
+router.put('/suppliers/:id', inventoryController.updateSupplier);
+router.delete('/suppliers/:id', inventoryController.deleteSupplier);
+router.get('/stock-movements', inventoryController.getStockMovements);
+router.post('/stock-movements', inventoryController.createStockMovement);
+router.get('/sales', inventoryController.getSales);
+router.post('/sales', inventoryController.createSale);
+export default router;

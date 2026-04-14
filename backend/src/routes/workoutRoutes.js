@@ -1,0 +1,11 @@
+import { Router } from 'express';
+import { protect } from '../middlewares/authMiddleware.js';
+import * as workoutController from '../controllers/workoutController.js';
+const router = Router();
+router.use(protect);
+router.get('/plans', workoutController.getWorkoutPlans);
+router.post('/plans', workoutController.createWorkoutPlan);
+router.put('/plans/:id', workoutController.updateWorkoutPlan);
+router.delete('/plans/:id', workoutController.deleteWorkoutPlan);
+router.get('/progress', workoutController.getWorkoutProgress);
+export default router;
