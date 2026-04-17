@@ -12,7 +12,9 @@ import { NotificationContext } from '../../context/NotificationContext';
 
 export default function CrudPage({
   title,
+  itemLabel,
   description,
+  initialQuery = '',
   fields,
   columns,
   listRequest,
@@ -27,9 +29,10 @@ export default function CrudPage({
   emptyDescription
 }) {
   const { notify } = useContext(NotificationContext);
+  const singularLabel = itemLabel || title.replace(/s$/, '');
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState([]);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
   const [activeFilter, setActiveFilter] = useState('');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
@@ -52,6 +55,11 @@ export default function CrudPage({
   useEffect(() => {
     load();
   }, [query, activeFilter, page]);
+
+  useEffect(() => {
+    setQuery(initialQuery);
+    setPage(1);
+  }, [initialQuery]);
 
   const computedStats = useMemo(() => {
     if (!stats) return [];
@@ -76,7 +84,7 @@ export default function CrudPage({
   const handleDelete = async () => {
     if (!selected || !deleteRequest) return;
     await deleteRequest(selected.id);
-    notify(`${title.slice(0, -1)} deleted`);
+    notify(`${singularLabel} deleted`);
     setConfirmOpen(false);
     setSelected(null);
     load();
@@ -107,10 +115,10 @@ export default function CrudPage({
     try {
       if (selected?.id && updateRequest) {
         await updateRequest(selected.id, form);
-        notify(`${title.slice(0, -1)} updated`);
+        notify(`${singularLabel} updated`);
       } else {
         await createRequest(form);
-        notify(`${title.slice(0, -1)} created`);
+        notify(`${singularLabel} created`);
       }
       setDialogOpen(false);
       load();
@@ -156,7 +164,7 @@ export default function CrudPage({
 
       <FormDialog
         open={dialogOpen}
-        title={`${selected?.id ? 'Edit' : 'Add'} ${title.slice(0, -1)}`}
+        title={`${selected?.id ? 'Edit' : 'Add'} ${singularLabel}`}
         fields={fields}
         initialValues={selected || {}}
         onClose={() => setDialogOpen(false)}
@@ -166,7 +174,7 @@ export default function CrudPage({
 
       <ConfirmDialog
         open={confirmOpen && !!deleteRequest}
-        title={`Delete ${title.slice(0, -1)}`}
+        title={`Delete ${singularLabel}`}
         message="This action cannot be undone."
         onCancel={() => setConfirmOpen(false)}
         onConfirm={handleDelete}

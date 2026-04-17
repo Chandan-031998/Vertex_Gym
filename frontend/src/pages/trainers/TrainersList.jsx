@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import CrudPage from '../../components/erp/CrudPage';
 import Badge from '../../components/common/Badge';
@@ -15,11 +16,15 @@ const fields = [
 ];
 
 export default function TrainersList() {
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get('search') || '';
+
   return (
     <DashboardLayout>
       <CrudPage
         title="Trainers"
         description="Manage trainer specialization, compensation, assigned members, and active schedules."
+        initialQuery={initialQuery}
         fields={fields}
         columns={[
           { key: 'full_name', label: 'Name' },

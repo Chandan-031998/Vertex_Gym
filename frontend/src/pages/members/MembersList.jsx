@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import CrudPage from '../../components/erp/CrudPage';
 import Badge from '../../components/common/Badge';
@@ -23,7 +24,9 @@ const fields = [
 export default function MembersList() {
   const [qrMember, setQrMember] = useState(null);
   const [qrPayload, setQrPayload] = useState('');
+  const [searchParams] = useSearchParams();
   const { notify } = useContext(NotificationContext);
+  const initialQuery = searchParams.get('search') || '';
 
   const openQr = async (member) => {
     try {
@@ -40,6 +43,7 @@ export default function MembersList() {
       <CrudPage
         title="Members"
         description="Full member lifecycle management with searchable records, profile-ready data, and status tracking."
+        initialQuery={initialQuery}
         fields={fields}
         columns={[
           { key: 'member_code', label: 'Code' },

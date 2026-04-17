@@ -5,7 +5,7 @@ import Input from '../common/Input';
 import Select from '../common/Select';
 import { NotificationContext } from '../../context/NotificationContext';
 
-export default function ActionCardPage({ title, description, fields, onSubmit, submitLabel = 'Submit' }) {
+export default function ActionCardPage({ title, description, fields, onSubmit, onSuccess, submitLabel = 'Submit' }) {
   const { notify } = useContext(NotificationContext);
   const [form, setForm] = useState(fields.reduce((acc, field) => ({ ...acc, [field.name]: field.defaultValue ?? '' }), {}));
   const [submitting, setSubmitting] = useState(false);
@@ -18,7 +18,8 @@ export default function ActionCardPage({ title, description, fields, onSubmit, s
     event.preventDefault();
     try {
       setSubmitting(true);
-      await onSubmit(form);
+      const response = await onSubmit(form);
+      onSuccess?.(response, form);
       notify(`${title} completed`);
     } catch (error) {
       notify(error?.response?.data?.message || `Unable to complete ${title.toLowerCase()}`, 'error');
