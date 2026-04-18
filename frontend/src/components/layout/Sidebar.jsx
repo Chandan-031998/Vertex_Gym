@@ -1,85 +1,120 @@
 import { NavLink } from 'react-router-dom';
 import {
-  FiActivity,
-  FiBell,
-  FiBox,
-  FiClipboard,
-  FiCreditCard,
-  FiGrid,
-  FiHardDrive,
-  FiHome,
-  FiLayers,
-  FiPieChart,
-  FiSettings,
-  FiTarget,
-  FiUser,
-  FiUserCheck,
-  FiUsers
-} from 'react-icons/fi';
+  HiOutlineAdjustmentsHorizontal,
+  HiOutlineArchiveBox,
+  HiOutlineBanknotes,
+  HiOutlineCalendarDays,
+  HiOutlineChartBarSquare,
+  HiOutlineClipboardDocumentCheck,
+  HiOutlineClipboardDocumentList,
+  HiOutlineCog6Tooth,
+  HiOutlineCube,
+  HiOutlineHome,
+  HiOutlineSparkles,
+  HiOutlineUserGroup,
+  HiOutlineUsers,
+  HiOutlineWrenchScrewdriver
+} from 'react-icons/hi2';
 import { useAuth } from '../../hooks/useAuth';
 import usePermissions from '../../hooks/usePermissions';
 import { useSettings } from '../../hooks/useSettings';
 
 const links = [
-  { to: '/', label: 'Dashboard', key: 'dashboard', icon: FiHome },
-  { to: '/members', label: 'Members', key: 'members', icon: FiUsers },
-  { to: '/trainers', label: 'Trainers', key: 'trainers', icon: FiUserCheck },
-  { to: '/membership/plans', label: 'Membership', key: 'membership', icon: FiClipboard },
-  { to: '/attendance', label: 'Attendance', key: 'attendance', icon: FiActivity },
-  { to: '/payments', label: 'Payments', key: 'payments', icon: FiCreditCard },
-  { to: '/classes', label: 'Classes', key: 'classes', icon: FiGrid },
-  { to: '/workout/plans', label: 'Workout', key: 'workout', icon: FiTarget },
-  { to: '/diet/plans', label: 'Diet', key: 'diet', icon: FiLayers },
-  { to: '/staff', label: 'Staff', key: 'staff', icon: FiUser },
-  { to: '/equipment', label: 'Equipment', key: 'equipment', icon: FiHardDrive },
-  { to: '/inventory/products', label: 'Inventory', key: 'inventory', icon: FiBox },
-  { to: '/notifications', label: 'Notifications', key: 'notifications', icon: FiBell },
-  { to: '/reports/revenue', label: 'Reports', key: 'reports', icon: FiPieChart },
-  { to: '/settings/general', label: 'Settings', key: 'settings', icon: FiSettings }
+  { to: '/', label: 'Dashboard', key: 'dashboard', icon: HiOutlineHome },
+  { to: '/members', label: 'Members', key: 'members', icon: HiOutlineUsers },
+  { to: '/trainers', label: 'Trainers', key: 'trainers', icon: HiOutlineUserGroup },
+  { to: '/membership/plans', label: 'Membership', key: 'membership', icon: HiOutlineClipboardDocumentList },
+  { to: '/attendance', label: 'Attendance', key: 'attendance', icon: HiOutlineClipboardDocumentCheck },
+  { to: '/payments', label: 'Payments', key: 'payments', icon: HiOutlineBanknotes },
+  { to: '/classes', label: 'Classes', key: 'classes', icon: HiOutlineCalendarDays },
+  { to: '/workout/plans', label: 'Workout', key: 'workout', icon: HiOutlineSparkles },
+  { to: '/diet/plans', label: 'Diet', key: 'diet', icon: HiOutlineAdjustmentsHorizontal },
+  { to: '/staff', label: 'Staff', key: 'staff', icon: HiOutlineUserGroup },
+  { to: '/equipment', label: 'Equipment', key: 'equipment', icon: HiOutlineWrenchScrewdriver },
+  { to: '/inventory/products', label: 'Inventory', key: 'inventory', icon: HiOutlineArchiveBox },
+  { to: '/reports/revenue', label: 'Reports', key: 'reports', icon: HiOutlineChartBarSquare },
+  { to: '/settings/general', label: 'Settings', key: 'settings', icon: HiOutlineCog6Tooth }
 ];
+
+function getInitials(name) {
+  return String(name || 'Gym Admin')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('');
+}
 
 export default function Sidebar({ open, onClose }) {
   const { user } = useAuth();
   const { canAccess } = usePermissions();
   const { settings } = useSettings();
-  const general = settings?.general || {};
+  const brandName = settings?.general?.gym_name || 'Vertex Gym';
   const visibleLinks = links.filter((link) => canAccess(link.key));
-  const brandName = general.gym_name || 'Vertex Gym';
 
   return (
     <>
-      <div className={`fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-sm transition lg:hidden ${open ? 'opacity-100' : 'pointer-events-none opacity-0'}`} onClick={onClose} />
-      <aside className={`sidebar-shell fixed inset-y-0 left-0 z-50 flex w-[88vw] max-w-[21rem] flex-col border-r border-white/80 bg-[linear-gradient(180deg,#ffffff_0%,#f6fbff_55%,#eef7ff_100%)] p-4 text-slate-900 shadow-[0_20px_80px_rgba(14,30,37,0.18)] transition-transform duration-300 sm:p-5 lg:sticky lg:top-0 lg:min-h-screen lg:w-[19rem] lg:translate-x-0 lg:shadow-none xl:w-80 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="mb-5 flex items-start justify-between gap-3">
+      <div
+        className={`fixed inset-0 z-40 bg-slate-950/25 backdrop-blur-sm transition lg:hidden ${open ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+        onClick={onClose}
+      />
+
+      <aside
+        className={`dashboard-sidebar dashboard-scrollbar fixed inset-y-0 left-0 z-50 flex w-[17rem] flex-col overflow-y-auto px-4 py-5 transition-transform duration-300 lg:translate-x-0 ${
+          open ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex items-start justify-between gap-3 px-2">
           <div>
-            <p className="text-xs uppercase tracking-[0.35em] text-sky-700/70">Gym</p>
-            <div className="mt-2 bg-gradient-to-r from-sky-700 via-blue-700 to-emerald-600 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl">{brandName}</div>
-            <p className="mt-2 max-w-xs text-sm text-slate-500">Premium operations dashboard</p>
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+              <span className="h-2 w-2 rounded-full dashboard-gradient" />
+              Gym ERP
+            </div>
+            <h1 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900">{brandName}</h1>
+            <p className="mt-1 text-sm text-slate-500">Operations dashboard</p>
           </div>
-          <button type="button" className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm lg:hidden" onClick={onClose}>
-            Close
+          <button
+            type="button"
+            className="dashboard-action inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white/80 text-slate-500 lg:hidden"
+            onClick={onClose}
+            aria-label="Close sidebar"
+          >
+            <HiOutlineCube className="text-lg" />
           </button>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
+        <nav className="mt-8 space-y-1.5">
           {visibleLinks.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
               onClick={onClose}
-              className={({ isActive }) => `sidebar-link group flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition sm:px-4 ${isActive ? 'bg-gradient-to-r from-sky-500 via-blue-600 to-cyan-500 text-white shadow-lg shadow-sky-200' : 'text-slate-700 hover:bg-white hover:shadow-sm'}`}
+              className={({ isActive }) =>
+                `dashboard-action flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium ${
+                  isActive
+                    ? 'dashboard-gradient text-white shadow-[0_16px_30px_rgba(108,100,255,0.32)]'
+                    : 'text-slate-600 hover:bg-white/75 hover:text-slate-900'
+                }`
+              }
             >
-              <span className={`flex h-9 w-9 items-center justify-center rounded-2xl transition ${Icon ? '' : 'hidden'}`}>
-                {Icon ? <Icon className="text-[1.05rem]" /> : null}
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/20 text-lg">
+                <Icon />
               </span>
-              <span className="min-w-0 truncate">{label}</span>
+              <span>{label}</span>
             </NavLink>
           ))}
         </nav>
 
-        <div className="sidebar-profile mt-5 rounded-3xl border border-sky-100 bg-white/90 p-4 text-sm text-slate-600 shadow-sm">
-          <p className="font-semibold text-slate-900">{user?.full_name}</p>
-          <p className="mt-1 capitalize">{String(user?.role || '').replace('_', ' ')}</p>
+        <div className="dashboard-inset mt-8 rounded-[22px] p-4">
+          <div className="flex items-center gap-3">
+            <div className="dashboard-gradient inline-flex h-12 w-12 items-center justify-center rounded-2xl text-sm font-semibold text-white">
+              {getInitials(user?.full_name)}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-slate-900">{user?.full_name || 'Gym Admin'}</p>
+              <p className="truncate text-xs capitalize text-slate-500">{String(user?.role || 'operator').replace('_', ' ')}</p>
+            </div>
+          </div>
         </div>
       </aside>
     </>

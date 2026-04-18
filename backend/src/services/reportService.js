@@ -1,53 +1,77 @@
 import { pool } from '../config/db.js';
 
 export async function getDashboardSummary() {
-  const [[members]] = await pool.query(
-    `SELECT
-      COUNT(*) as totalMembers,
-      SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as activeMembers,
-      SUM(CASE WHEN status = 'expired' THEN 1 ELSE 0 END) as expiredMembers
-     FROM members`
-  );
-  const [[trainers]] = await pool.query(`SELECT COUNT(*) as totalTrainers FROM trainers`);
-  const [[revenue]] = await pool.query(`SELECT COALESCE(SUM(amount),0) as totalRevenue FROM payments`);
-  const [[todayAttendance]] = await pool.query(`SELECT COUNT(*) as todayAttendance FROM attendance WHERE DATE(check_in_time)=CURDATE()`);
-  const [recentPayments] = await pool.query(
-    `SELECT p.id, p.amount, p.payment_method, p.payment_date, p.invoice_number, m.full_name as member_name
-     FROM payments p
-     JOIN members m ON m.id = p.member_id
-     ORDER BY p.id DESC
-     LIMIT 5`
-  );
-  const [recentAttendance] = await pool.query(
-    `SELECT a.id, a.check_in_time, a.check_out_time, a.entry_type, m.full_name as member_name, m.member_code
-     FROM attendance a
-     JOIN members m ON m.id = a.member_id
-     ORDER BY a.id DESC
-     LIMIT 5`
-  );
-  const [revenueSeries] = await pool.query(
-    `SELECT DATE_FORMAT(payment_date, '%Y-%m') as month, ROUND(SUM(amount), 2) as total
-     FROM payments
-     WHERE payment_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
-     GROUP BY DATE_FORMAT(payment_date, '%Y-%m')
-     ORDER BY month`
-  );
-  const [attendanceSeries] = await pool.query(
-    `SELECT DATE(check_in_time) as day, COUNT(*) as total
-     FROM attendance
-     WHERE check_in_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-     GROUP BY DATE(check_in_time)
-     ORDER BY day`
-  );
-  const [expiringMemberships] = await pool.query(
-    `SELECT mm.id, mm.end_date, DATEDIFF(mm.end_date, CURDATE()) as remaining_days, m.full_name as member_name, p.plan_name
-     FROM member_memberships mm
-     JOIN members m ON m.id = mm.member_id
-     JOIN membership_plans p ON p.id = mm.plan_id
-     WHERE mm.end_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 15 DAY)
-     ORDER BY mm.end_date ASC
-     LIMIT 5`
-  );
+  const [
+    [memberRows],
+    [trainerRows],
+    [revenueRows],
+    [todayAttendanceRows],
+    [recentPayments],
+    [recentAttendance],
+    [revenueSeries],
+    [attendanceSeries],
+    [expiringMemberships]
+  ] = await Promise.all([
+    pool.query(
+      `SELECT
+        COUNT(*) as totalMembers,
+        SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as activeMembers,
+        SUM(CASE WHEN status = 'expired' THEN 1 ELSE 0 END) as expiredMembers
+       FROM members`
+    ),
+    pool.query(`SELECT COUNT(*) as totalTrainers FROM trainers`),
+    pool.query(`SELECT COALESCE(SUM(amount),0) as totalRevenue FROM payments`),
+    pool.query(
+      `SELECT COUNT(*) as todayAttendance
+       FROM attendance
+       WHERE check_in_time >= CURDATE()
+         AND check_in_time < CURDATE() + INTERVAL 1 DAY`
+    ),
+    pool.query(
+      `SELECT p.id, p.amount, p.payment_method, p.payment_date, p.invoice_number, m.full_name as member_name
+       FROM payments p
+       JOIN members m ON m.id = p.member_id
+       ORDER BY p.id DESC
+       LIMIT 5`
+    ),
+    pool.query(
+      `SELECT a.id, a.check_in_time, a.check_out_time, a.entry_type, m.full_name as member_name, m.member_code
+       FROM attendance a
+       JOIN members m ON m.id = a.member_id
+       ORDER BY a.id DESC
+       LIMIT 5`
+    ),
+    pool.query(
+      `SELECT DATE_FORMAT(payment_date, '%Y-%m') as month, ROUND(SUM(amount), 2) as total
+       FROM payments
+       WHERE payment_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+       GROUP BY DATE_FORMAT(payment_date, '%Y-%m')
+       ORDER BY month`
+    ),
+    pool.query(
+      `SELECT DATE(check_in_time) as day, COUNT(*) as total
+       FROM attendance
+       WHERE check_in_time >= CURDATE() - INTERVAL 6 DAY
+         AND check_in_time < CURDATE() + INTERVAL 1 DAY
+       GROUP BY DATE(check_in_time)
+       ORDER BY day`
+    ),
+    pool.query(
+      `SELECT mm.id, mm.end_date, DATEDIFF(mm.end_date, CURDATE()) as remaining_days, m.full_name as member_name, p.plan_name
+       FROM member_memberships mm
+       JOIN members m ON m.id = mm.member_id
+       JOIN membership_plans p ON p.id = mm.plan_id
+       WHERE mm.end_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 15 DAY)
+       ORDER BY mm.end_date ASC
+       LIMIT 5`
+    )
+  ]);
+
+  const [members] = memberRows;
+  const [trainers] = trainerRows;
+  const [revenue] = revenueRows;
+  const [todayAttendance] = todayAttendanceRows;
+
   return {
     ...members,
     ...trainers,

@@ -7,12 +7,14 @@ export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="app-shell-gradient flex min-h-screen bg-transparent">
+    <div className="dashboard-shell">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+      <div className="min-h-screen lg:pl-[18.5rem]">
         <Navbar onMenuClick={() => setSidebarOpen((current) => !current)} />
-        <main className="flex-1 px-4 py-5 sm:px-6 lg:px-8">{children}</main>
-        <div className="px-4 sm:px-6 lg:px-8"><Footer /></div>
+        <main className="px-4 pb-8 pt-6 sm:px-6 lg:px-8 xl:px-10">{children}</main>
+        <div className="px-4 pb-8 sm:px-6 lg:px-8 xl:px-10">
+          <Footer />
+        </div>
       </div>
     </div>
   );
